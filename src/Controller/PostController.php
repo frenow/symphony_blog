@@ -62,4 +62,34 @@ public function index(): Response {
     return JsonResponse::create($data);
   }  
 
+/**
+ * @Route("/posts/{id}", methods={"PUT"})
+ */
+public function update(Request $request, int $id): Response {
+    /** @var Post $post */
+    $post = $this->entityManager->getRepository(Post::class)->find($id);
+
+    $data = json_decode($request->getContent(), true);
+
+    $post->title = $data['title'];
+    $post->description = $data['description'];
+
+    $this->entityManager->persist($post);
+    $this->entityManager->flush();
+
+    return new Response('ok');
+}
+
+/**
+ * @Route("/posts/{id}", methods={"DELETE"})
+ */
+public function delete(int $id): Response {
+    /** @var Post $post */
+    $post = $this->entityManager->getRepository(Post::class)->find($id);
+    $this->entityManager->remove($post);
+    $this->entityManager->flush();
+    
+    return new Response('', Response::HTTP_NO_CONTENT);
+}
+
 }
