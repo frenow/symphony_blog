@@ -15,4 +15,10 @@ public function test_create_post(): void {
     $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode());
 }
 
+public function test_delete_post(): void {
+    $client = static::createClient();
+    $client->request('DELETE','/posts/3');
+    $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+}
+
 }
