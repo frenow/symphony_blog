@@ -1,5 +1,6 @@
 <?php
 namespace App\Entity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use Doctrine\ORM\Mapping as ORM;
 /**
@@ -17,11 +18,15 @@ final class Post {
 
     /**
      * @ORM\Column()
+     * @Assert\NotBlank()
+     * @Assert\Length(min="3", max="50")
      */
     public string $title;
     
     /**
      * @ORM\Column()
+     * @Assert\NotBlank()
+     * @Assert\Length(min="3")
      */    
     public string $description;
 

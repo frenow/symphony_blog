@@ -41,7 +41,7 @@ public function create(Request $request): Response {
     $this->entityManager->flush();
 
     return new Response('ok', Response::HTTP_CREATED);
-    }
+}
 
 /**
  * @Route("/posts/{id}", methods={"GET"})
