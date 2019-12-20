@@ -33,6 +33,7 @@ public function create(Request $request): Response {
     $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
 
     $errors = $this->validator->validate($post);
+    
     if (count($errors)){
         throw new ValidationException($errors);
     }
