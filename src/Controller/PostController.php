@@ -3,25 +3,40 @@ namespace App\Controller;
 
 use App\Entity\Post;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Exception\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
 
 final class PostController {
     private EntityManagerInterface $entityManager;
+    private SerializerInterface $serializer;
+    private ValidatorInterface $validator;
 
-    public function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator) {
         $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
+        $this->validator = $validator;
     }
 
 /**
  * @Route("/posts", methods={"POST"})
  */
 public function create(Request $request): Response {
-    $data = json_decode($request->getContent(), true);
+//    $data = json_decode($request->getContent(), true);
+//    $post = new Post($data['title'], $data['description']);
+    $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
 
-    $post = new Post($data['title'], $data['description']);
+    $errors = $this->validator->validate($post);
+    if (count($errors)){
+        throw new ValidationException($errors);
+    }
+
     $this->entityManager->persist($post);
     $this->entityManager->flush();
 
@@ -33,14 +48,19 @@ public function create(Request $request): Response {
  */
 public function details(int $id): Response {
 /** @var Post $post */
-$post = $this->entityManager->getRepository(Post::class)->find($id);
+    $post = $this->entityManager->getRepository(Post::class)->find($id);
 
-    return JsonResponse::create([
-    'id' => $post->getId(),
-    'title' => $post->title,
-    'description' => $post->description,
-    'createdAt' => $post->getCreatedAt()->format('Y-m-d'),
-    ]);
+    if (null === $post){
+        throw new NotFoundHttpException('Post não encontrado');
+    }
+
+//    return JsonResponse::create([
+//    'id' => $post->getId(),
+//    'title' => $post->title,
+//    'description' => $post->description,
+//    'createdAt' => $post->getCreatedAt()->format('Y-m-d'),
+//    ]);
+    return JsonResponse::fromJsonString($this->serializer->serialize($post, 'json'));
   }
 
 /**
@@ -49,17 +69,19 @@ $post = $this->entityManager->getRepository(Post::class)->find($id);
 public function index(): Response {
     /** @var Post [$posts] */
     $posts = $this->entityManager->getRepository(Post::class)->findAll();
-    $data = [];
+    //$data = [];
 
-    foreach($posts as $post) {
-        $data[] =  [
-        'id' => $post->getId(),
-        'title' => $post->title,
-        'description' => $post->description,
-        'createdAt' => $post->getCreatedAt()->format('Y-m-d'),
-        ];
-    }
-    return JsonResponse::create($data);
+    //foreach($posts as $post) {
+    //    $data[] =  [
+    //    'id' => $post->getId(),
+    //    'title' => $post->title,
+    //    'description' => $post->description,
+    //    'createdAt' => $post->getCreatedAt()->format('Y-m-d'),
+    //   ];
+    //}
+
+    //return JsonResponse::create($data);
+    return JsonResponse::fromJsonString($this->serializer->serialize($posts, 'json'));    
   }  
 
 /**
