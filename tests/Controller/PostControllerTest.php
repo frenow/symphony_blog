@@ -56,5 +56,17 @@ public function test_create_post_with_invalid_title():void{
     ]));
     $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
 }
+public function test_update_post(): void {
+    $post = new Post("fake", "fake");
+    $this->em->persist($post);
+    $this->em->flush();
+    
+    $this->client->request('PUT','/posts/1', [], [], [], json_encode([
+        'title' => 'altera titulo',
+        'description' => 'altera descricao'
+        ]));    
+    $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+}
+
 
 }
