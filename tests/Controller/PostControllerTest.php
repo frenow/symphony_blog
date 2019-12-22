@@ -65,7 +65,7 @@ public function test_update_post(): void {
         'title' => 'altera titulo',
         'description' => 'altera descricao'
         ]));    
-    $this->assertEquals(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());
+    $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 }
 
 
