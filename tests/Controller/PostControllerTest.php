@@ -68,5 +68,24 @@ public function test_update_post(): void {
     $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 }
 
+public function test_list_all_post(): void
+{
+    $post = new Post("fake", "fake");
+    $this->em->persist($post);
+    $this->em->flush();
+
+    $this->client->request('GET', '/posts', [], [], [], null);
+    $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+}
+
+public function test_list_post(): void
+{
+    $post = new Post("fake", "fake");
+    $this->em->persist($post);
+    $this->em->flush();
+
+    $this->client->request('GET', '/posts/1', [], [], [], null);
+    $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+}
 
 }
